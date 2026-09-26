@@ -492,6 +492,12 @@
         <span id="gapVal">4px</span>
       </div>
 
+      <div class="gap-control">
+        <span>页边距</span>
+        <input type="range" id="marginRange" min="0" max="40" value="8" oninput="updateMargin(this.value)">
+        <span id="marginVal">8px</span>
+      </div>
+
       <button class="btn secondary" onclick="clearAll()" style="margin-left:auto">清空</button>
       <button class="btn secondary" onclick="goStep(1)">← 重选布局</button>
     </div>
@@ -539,6 +545,7 @@ let state = {
   cols: 3, rows: 4,
   fitMode: 'contain',
   gap: 4,
+  margin: 8,
   orientation: 'portrait',
   images: [],
   activeCell: null,
@@ -647,7 +654,7 @@ function buildGrid() {
   grid.style.gridTemplateColumns = `repeat(${state.cols}, 1fr)`;
   grid.style.gridTemplateRows = `repeat(${state.rows}, 1fr)`;
   grid.style.gap = state.gap + 'px';
-  grid.style.padding = '8px';
+  grid.style.padding = state.margin + 'px';
 
   // Ensure images array is right size
   const total = state.cols * state.rows;
@@ -786,6 +793,13 @@ function updateGap(val) {
   document.getElementById('cellsGrid').style.gap = val + 'px';
 }
 
+// ===== MARGIN =====
+function updateMargin(val) {
+  state.margin = parseInt(val);
+  document.getElementById('marginVal').textContent = val + 'px';
+  document.getElementById('cellsGrid').style.padding = val + 'px';
+}
+
 // ===== CORE: render layout to Canvas =====
 // Returns a Promise<HTMLCanvasElement> at the given pixel dimensions
 function renderToCanvas(widthPx, heightPx) {
@@ -800,7 +814,7 @@ function renderToCanvas(widthPx, heightPx) {
 
     // Scale padding/gap relative to the short side (794px ≈ 210mm at 96dpi)
     const refSize = Math.min(widthPx, heightPx);
-    const PAD = Math.round(8 * refSize / 794);
+    const PAD = Math.round(state.margin * refSize / 794);
     const GAP = Math.round(state.gap * refSize / 794);
 
     const totalW = widthPx - PAD * 2;
